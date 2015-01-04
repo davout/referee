@@ -5,5 +5,12 @@ $:.unshift File.join(File.dirname(__FILE__), 'lib')
 require 'referee'
 
 bitstamp = Referee::Exchanges::Bitstamp.new
-bitstamp.connect
 
+EM.run do
+  bitstamp.connect
+
+  EM.add_periodic_timer(1) do
+    puts(bitstamp.market_info)
+  end
+
+end

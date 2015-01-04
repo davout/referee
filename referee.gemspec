@@ -21,12 +21,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'rake'
 
-  s.add_dependency 'fix-protocol'
   s.add_dependency 'eventmachine'
-  s.add_dependency 'eventmachine'
-  s.add_dependency 'websocket-native'
-  s.add_dependency 'pusher-client'
-  s.add_dependency 'eventmachine'
+  s.add_dependency 'em-http-request'
+  s.add_dependency 'websocket-eventmachine-client'
   s.add_dependency 'fix-engine'
   s.add_dependency 'oj'
 

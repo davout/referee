@@ -1,7 +1,7 @@
 require 'bigdecimal'
-require 'pusher-client'
+require 'em-http-request'
+require 'websocket-eventmachine-client'
 require 'oj'
-require 'net/https'
 
 require 'referee/exchange'
 
@@ -12,30 +12,52 @@ module Referee
       ORDER_BOOK_KEY = 'de504dc5763aeef9ff52' 
       FULL_BOOK_URL  = 'https://www.bitstamp.net/api/order_book/'
 
-      def initialize
-        super
-        PusherClient.logger.level = Logger::INFO
+      def symbol
+        'BSTP'
+      end
+
+      def currency
+        'USD'
       end
 
       def connect
-        options = { secure: true } 
-        socket = PusherClient::Socket.new(ORDER_BOOK_KEY, options)
+        http = EM::HttpRequest.new(FULL_BOOK_URL).get
 
-        socket.subscribe('diff_order_book')
+        http.callback {
+          full_book = Oj.load(http.response)
 
-        socket.bind('data') { |data| puts(data) }
+          full_book['bids'].each do |t|
+            book[:bid].set_depth_at(BigDecimal(t[0]), BigDecimal(t[1]))
+          end
 
-        full_book = Oj.load(Net::HTTP.get(URI.parse(FULL_BOOK_URL)))
+          full_book['asks'].each do |t|
+            book[:ask].set_depth_at(BigDecimal(t[0]), BigDecimal(t[1]))
+          end
 
-        full_book['bids'].each do |t|
-          book[:bid].set_depth_at(BigDecimal(t[0]), BigDecimal(t[1]))
-        end
+          ws = WebSocket::EventMachine::Client.connect(uri: "ws://ws.pusherapp.com:80/app/#{ORDER_BOOK_KEY}?client=brainfuck&version=1.3.7&protocol=6")
 
-        full_book['asks'].each do |t|
-          book[:ask].set_depth_at(BigDecimal(t[0]), BigDecimal(t[1]))
-        end
+          ws.onopen do
+            msg = Oj.dump({ 'event' => 'pusher:subscribe', 'data' => { 'channel' => 'diff_order_book' }})
+            ws.send(msg)
+          end
 
-        socket.connect
+          ws.onmessage do |msg, type|
+            j = Oj.load(msg)
+
+            if j['event'] == 'data'
+              data = Oj.load(j['data'])
+
+              data['bids'].each do |bid|
+                book[:bid].set_depth_at(BigDecimal(bid[0]), BigDecimal(bid[1]))
+              end
+
+              data['asks'].each do |ask|
+                book[:ask].set_depth_at(BigDecimal(ask[0]), BigDecimal(ask[1]))
+              end
+            end
+
+          end
+        }
       end
     end
   end
