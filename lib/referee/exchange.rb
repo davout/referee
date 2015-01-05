@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'referee/book_side'
 
 module Referee
