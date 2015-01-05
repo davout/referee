@@ -31,7 +31,8 @@ module Referee
       def short_currency
         {
           'USD' => '$',
-          'EUR' => '€'
+          'EUR' => '€',
+          'GBP' => '£'
         }[currency] || '?'
       end
 
