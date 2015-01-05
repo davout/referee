@@ -27,6 +27,8 @@ module Referee
     end
 
     def set_depth_at(price, depth)
+      prev = (self[0] && self[0][0]) || 0
+
       if get_depth_at(price).zero?
         idx = 0
 
@@ -47,6 +49,10 @@ module Referee
           self[idx][1] = depth
         end
       end
+
+      if (self[0][0] != prev)
+        do_on_update
+      end
     end
 
     def buying?
@@ -55,6 +61,14 @@ module Referee
 
     def selling?
       !buying?
+    end
+
+    def on_update(&block)
+      @update_callback = block
+    end
+
+    def do_on_update
+      @update_callback && @update_callback.call
     end
 
   end

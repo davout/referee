@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'em-http-request'
   s.add_dependency 'websocket-eventmachine-client'
   s.add_dependency 'fix-protocol'
+  s.add_dependency 'fix-engine'
   s.add_dependency 'oj'
 
   s.files         = Dir.glob('{lib,bin}/**/*') + %w(LICENSE README.md)

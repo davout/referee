@@ -4,13 +4,8 @@ $:.unshift File.join(File.dirname(__FILE__), 'lib')
 
 require 'referee'
 
-bitstamp = Referee::Exchanges::Bitstamp.new
+paymium = Referee::Exchanges::Paymium.new
 
 EM.run do
-  bitstamp.connect
-
-  EM.add_periodic_timer(5) do
-    puts(bitstamp.market_info)
-  end
-
+  paymium.connect
 end

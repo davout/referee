@@ -14,19 +14,19 @@ module Referee
     end
 
       def market_info
-        "[#{symbol}] BID: #{short_currency}#{'%.4f' % bid} | ASK: #{short_currency}#{'%.4f' % ask} | SPD: $#{'%.4f' % spread}"
+        "[#{symbol}] BID: #{short_currency}#{'%.4f' % bid} | ASK: #{short_currency}#{'%.4f' % ask} | SPD: #{short_currency}#{'%.4f' % spread}"
       end
 
       def bid
-        book[:bid].first[0]
+        (book[:bid].first && book[:bid].first[0]) || 0
       end
 
       def ask
-        book[:ask].first[0]
+        (book[:ask].first && book[:ask].first[0]) || 0
       end
 
       def spread
-        book[:ask].first[0] - book[:bid].first[0]
+        ask - bid
       end
 
       def short_currency
