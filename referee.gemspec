@@ -20,6 +20,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'simplecov'
   s.add_development_dependency 'rake'
+  s.add_development_dependency 'webmock'
 
   s.add_dependency 'eventmachine'
   s.add_dependency 'em-http-request'
