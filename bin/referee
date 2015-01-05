@@ -9,7 +9,7 @@ bitstamp = Referee::Exchanges::Bitstamp.new
 EM.run do
   bitstamp.connect
 
-  EM.add_periodic_timer(1) do
+  EM.add_periodic_timer(5) do
     puts(bitstamp.market_info)
   end
 

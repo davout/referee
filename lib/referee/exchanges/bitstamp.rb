@@ -49,10 +49,12 @@ module Referee
 
               data['bids'].each do |bid|
                 book[:bid].set_depth_at(BigDecimal(bid[0]), BigDecimal(bid[1]))
+                puts "BID : #{'%.4f' % BigDecimal(bid[0])} -- #{'%.4f' % BigDecimal(bid[1])}"
               end
 
               data['asks'].each do |ask|
                 book[:ask].set_depth_at(BigDecimal(ask[0]), BigDecimal(ask[1]))
+                puts "ASK : #{'%.4f' % BigDecimal(ask[0])} -- #{'%.4f' % BigDecimal(ask[1])}"
               end
             end
 
