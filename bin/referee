@@ -8,4 +8,8 @@ paymium = Referee::Exchanges::Paymium.new
 
 EM.run do
   paymium.connect
+
+  EM.add_periodic_timer(10) do
+    puts paymium.market_info
+  end
 end

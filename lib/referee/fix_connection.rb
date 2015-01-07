@@ -2,11 +2,17 @@ require 'fix/engine'
 
 module Referee
 
-  class FixConnection < FE::ClientConnection
+  class FixConnection < EM::Connection
 
-    attr_accessor :msg_received
+    include FE::ClientConnection
 
-    def on_logon
+    attr_accessor :exchange
+
+    #
+    # When a logon message is received we request a market snapshot
+    # and subscribe for continuous updates
+    #
+    def on_logon(msg)
       mdr = FP::Messages::MarketDataRequest.new
 
       mdr.md_req_id = 'foo'
@@ -28,8 +34,21 @@ module Referee
       send_msg(mdr)
     end
 
-    def on_message(msg)
-      msg_received && msg_received.call(msg)
+    # Called when a market data snapshot is received
+    def on_market_data_snapshot(msg)
+      update_book_with(msg)
+    end
+
+    # Called upon each subsequent update
+    def on_market_data_incremental_refresh(msg)
+      update_book_with(msg)
+    end
+
+    # Update the local order book copy with the new data
+    def update_book_with(msg)
+      msg.md_entries.each do |mde|
+        exchange.book[mde.md_entry_type].set_depth_at(BigDecimal(mde.md_entry_px), BigDecimal(mde.md_entry_size))
+      end
     end
 
   end
