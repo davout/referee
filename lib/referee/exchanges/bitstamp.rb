@@ -12,6 +12,8 @@ module Referee
       ORDER_BOOK_KEY = 'de504dc5763aeef9ff52' 
       FULL_BOOK_URL  = 'https://www.bitstamp.net/api/order_book/'
 
+      FEE = 0 #BigDecimal('0.005')
+
       def symbol
         'BSTP'
       end
@@ -33,11 +35,11 @@ module Referee
         full_book = Oj.load(http.response)
 
         full_book['bids'].each do |t|
-          book[:bid].set_depth_at(BigDecimal(t[0]), BigDecimal(t[1]))
+          book[:bid].set_depth_at(BigDecimal(t[0]) * (1 - FEE), BigDecimal(t[1]))
         end
 
         full_book['asks'].each do |t|
-          book[:ask].set_depth_at(BigDecimal(t[0]), BigDecimal(t[1]))
+          book[:ask].set_depth_at(BigDecimal(t[0]) * (1 + FEE), BigDecimal(t[1]))
         end
       end
 
@@ -56,11 +58,11 @@ module Referee
             data = Oj.load(j['data'])
 
             data['bids'].each do |bid|
-              book[:bid].set_depth_at(BigDecimal(bid[0]), BigDecimal(bid[1]))
+              book[:bid].set_depth_at(BigDecimal(bid[0]) * (1 - FEE), BigDecimal(bid[1]))
             end
 
             data['asks'].each do |ask|
-              book[:ask].set_depth_at(BigDecimal(ask[0]), BigDecimal(ask[1]))
+              book[:ask].set_depth_at(BigDecimal(ask[0]) * (1 + FEE), BigDecimal(ask[1]))
             end
           end
 

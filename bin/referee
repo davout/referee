@@ -4,12 +4,29 @@ $:.unshift File.join(File.dirname(__FILE__), 'lib')
 
 require 'referee'
 
-paymium = Referee::Exchanges::Paymium.new
+USD_EUR = BigDecimal('0.843629124')
+
+paymium   = Referee::Exchanges::Paymium.new
+bitstamp  = Referee::Exchanges::Bitstamp.new
+
+paymium.color = :blue
+bitstamp.color = :green
 
 EM.run do
   paymium.connect
+  bitstamp.connect
 
-  EM.add_periodic_timer(10) do
-    puts paymium.market_info
+  EM.add_periodic_timer(150) do
+    puts "BID DELTA DEPTH : #{'%.4f' % bitstamp.book[:bid].cumulated_depth_at(paymium.bid / USD_EUR)}"
+    puts "ASK DELTA DEPTH : #{'%.4f' % bitstamp.book[:ask].cumulated_depth_at(paymium.ask / USD_EUR)}"
+  end
+
+  EM.add_periodic_timer(30) do
+    if ((paymium.bid / USD_EUR) > (bitstamp.ask * 1)) || ((bitstamp.bid * 1) > (paymium.ask / USD_EUR))
+      puts "ACHTUNG ACHTUNG ACHTUNG ARBITRAGE OPPORTUNITY 11!!".colorize(color: :red)
+      puts bitstamp.market_info
+      puts paymium.market_info((1/USD_EUR), 'USD')
+    end
   end
 end
+

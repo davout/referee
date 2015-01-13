@@ -11,6 +11,18 @@ module Referee
       end
     end
 
+    def cumulated_depth_at(price)
+      dpth = 0
+      i    = 0
+
+      while self[i] && ((bid? && (price <= self[i][0])) || (ask? && (price >= self[i][0]))) do
+        dpth += self[i][1]
+        i += 1
+      end
+
+      dpth
+    end
+
     def get_depth_at(price)
       depth = 0
       i     = 0
@@ -50,10 +62,11 @@ module Referee
         end
       end
 
-      if (self[0][0] != prev)
-        do_on_update
-      end
+      do_on_update
     end
+
+    def bid?; buying?; end
+    def ask?; !bid?; end
 
     def buying?
       side == :bid
@@ -65,6 +78,7 @@ module Referee
 
     def on_update(&block)
       @update_callback = block
+      self
     end
 
     def do_on_update
